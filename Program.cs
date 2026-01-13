@@ -15,7 +15,8 @@ builder.Configuration
 
 var allowedOrigins = new[]
 {
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "https://recruiter-portal-qzly.onrender.com"
 };
 
 builder.Services.AddControllers()
