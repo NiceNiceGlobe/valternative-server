@@ -156,6 +156,7 @@ namespace nicenice.Server.Controllers
         {
             var submissions = await _context.RecruiterSubmissions
                 .Include(s => s.Recruiter)
+                .ThenInclude(r => r.User)
                 .OrderByDescending(s => s.UploadedAt)
                 .Select(s => new
                 {
@@ -164,6 +165,7 @@ namespace nicenice.Server.Controllers
                     s.TotalRiders,
                     s.Status,
                     s.UploadedAt,
+                    recruiterName = (s.Recruiter.User.FirstName + " " + s.Recruiter.User.LastName).Trim(),
                     recruiterCode = s.Recruiter.RecruiterCode
                 })
                 .ToListAsync();
@@ -392,6 +394,22 @@ namespace nicenice.Server.Controllers
             return Ok(new
             {
                 recentActivity = notifications
+            });
+        }
+
+        [HttpGet("me")]
+        public async Task<IActionResult> GetCurrentAdmin()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            return Ok(new
+            {
+                id = user.Id,
+                fullName = $"{user.FirstName} {user.LastName}".Trim(),
+                email = user.Email,
+                role = "Administrator"
             });
         }
     }
