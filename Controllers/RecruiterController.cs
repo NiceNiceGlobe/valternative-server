@@ -4,9 +4,11 @@ using ValternativeServer.ValternativeDb;
 using ValternativeServer.Models.Recruiters;
 using ValternativeServer.Models.DTOs.Recruiters;
 using ValternativeServer.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace nicenice.Server.Controllers
 {
+    [Authorize(Roles = "Admin,Recruiter")]
     [ApiController]
     [Route("api/recruiter")]
     public class RecruiterController : ControllerBase

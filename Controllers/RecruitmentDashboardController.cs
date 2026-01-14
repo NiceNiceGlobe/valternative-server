@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ValternativeServer.ValternativeDb;
+using Microsoft.AspNetCore.Authorization;
 
 namespace nicenice.Server.Controllers
 {
+    [Authorize(Roles = "Admin")]
     [ApiController]
     [Route("api/recruitment")]
     public class RecruitmentDashboardController : ControllerBase
