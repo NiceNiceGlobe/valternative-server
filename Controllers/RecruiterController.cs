@@ -4,7 +4,10 @@ using ValternativeServer.ValternativeDb;
 using ValternativeServer.Models.Recruiters;
 using ValternativeServer.Models.DTOs.Recruiters;
 using ValternativeServer.Services;
+using ValternativeServer.Models.DTOs.Auth;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using ValternativeServer.Models.Auth;
 
 namespace nicenice.Server.Controllers
 {
@@ -16,15 +19,18 @@ namespace nicenice.Server.Controllers
         private readonly ValternativeDbContext _context;
         private readonly IIdentityServices _identityService;
         private readonly RecruiterCsvService _csvService;
+        private readonly UserManager<ValternativeUser> _userManager;
 
         public RecruiterController(
             ValternativeDbContext context,
             IIdentityServices identityService,
-            RecruiterCsvService csvService)
+            RecruiterCsvService csvService,
+            UserManager<ValternativeUser> userManager)
         {
             _context = context;
             _identityService = identityService;
             _csvService = csvService;
+            _userManager = userManager;
         }
 
         [HttpGet("dashboard")]
@@ -708,6 +714,30 @@ namespace nicenice.Server.Controllers
             await _context.SaveChangesAsync();
 
             return Ok();
+        }
+
+        [HttpPut("me/change-password")]
+        public async Task<IActionResult> ChangeMyPassword(
+            [FromBody] ChangePasswordDto dto)
+        {
+            var userId = _identityService.GetUserId();
+            if (userId == null || userId == Guid.Empty)
+                return Unauthorized();
+
+            var user = await _userManager.FindByIdAsync(userId.ToString());
+            if (user == null)
+                return NotFound("User not found.");
+
+            var result = await _userManager.ChangePasswordAsync(
+                user,
+                dto.CurrentPassword,
+                dto.NewPassword
+            );
+
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            return Ok(new { message = "Password changed successfully." });
         }
     }
 }
